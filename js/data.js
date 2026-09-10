@@ -13,6 +13,34 @@ const CATEGORIES = {
     ingreso: { emoji: '💰', label: 'Ingreso', color: '#2D9D5F' }
 };
 
+// ============ Selector visual de categoría ============
+
+function renderCategoryGrid(gridId, defaultCategory = 'comida') {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    grid.innerHTML = Object.entries(CATEGORIES)
+        .filter(([key]) => key !== 'ingreso')
+        .map(([key, cat]) => `
+            <button type="button" class="category-btn${key === defaultCategory ? ' active' : ''}" data-category="${key}">
+                <span class="category-btn-emoji">${cat.emoji}</span>
+                <span>${cat.label}</span>
+            </button>
+        `).join('');
+
+    grid.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            grid.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+}
+
+function getSelectedCategory(gridId) {
+    const active = document.querySelector(`#${gridId} .category-btn.active`);
+    return active ? active.dataset.category : 'otro';
+}
+
 // ============ Movimientos ============
 
 async function getMovements() {

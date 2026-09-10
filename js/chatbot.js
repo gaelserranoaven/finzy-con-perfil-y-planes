@@ -93,7 +93,7 @@ function buildPremiumWidget() {
                 await loadChatContext();
             }
 
-            const { data, error } = await _supabase.functions.invoke('gemini-chat', {
+            const { data, error } = await _supabase.functions.invoke('openai-chat', {
                 body: { message: text, history: chatHistory, context: chatFinancialContext }
             });
 

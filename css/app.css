@@ -729,6 +729,49 @@
     color: white;
 }
 
+/* Category picker */
+.category-picker-hidden { display: none; }
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.category-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 4px;
+    background: white;
+    border: 1.5px solid rgba(26,24,20,0.1);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.category-btn-emoji {
+    font-size: 20px;
+}
+
+.category-btn:hover {
+    border-color: var(--ink);
+}
+
+.category-btn.active {
+    background: var(--lime);
+    border-color: var(--ink);
+    color: var(--ink);
+    transform: scale(1.03);
+}
+
 /* Emoji picker */
 .emoji-picker {
     margin-bottom: 20px;
@@ -1411,6 +1454,15 @@
     font-size: 13px;
     color: var(--ink-soft);
     margin: 0;
+}
+
+.reward-address-form .reward-card,
+.reward-address-confirm .reward-card {
+    margin-bottom: 16px;
+}
+
+.reward-address-confirm .btn {
+    margin-top: 4px;
 }
 
 /* ============ RESPONSIVE APP ============ */

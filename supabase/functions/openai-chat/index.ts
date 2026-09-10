@@ -1,12 +1,12 @@
 /* ===================================================================
-   FINZY — Edge Function: chatbot personalizado con Gemini
+   FINZY — Edge Function: chatbot personalizado con OpenAI (ChatGPT)
    Solo responde a usuarios con plan premium (verificado aquí, no solo
    en el frontend, para que no se pueda saltar el candado desde devtools).
-   La GEMINI_API_KEY vive como secreto del proyecto, nunca en el cliente.
+   La OPENAI_API_KEY vive como secreto del proyecto, nunca en el cliente.
    =================================================================== */
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,29 +75,33 @@ ${recentMovs || "Sin movimientos registrados"}
 
 Responde SIEMPRE basándote en estos datos reales cuando sea relevante, en español, con tono cercano y juvenil (puedes usar "vos" o "tú"), directo y sin rodeos. No uses asteriscos ni markdown. Máximo 4 oraciones por respuesta.`;
 
-    const contents = [
-      { role: "user", parts: [{ text: systemContext }] },
-      { role: "model", parts: [{ text: "Entendido, tengo el contexto financiero listo." }] },
+    const messages = [
+      { role: "system", content: systemContext },
       ...(history || []).map((h: any) => ({
-        role: h.role === "user" ? "user" : "model",
-        parts: [{ text: h.text }],
+        role: h.role === "user" ? "user" : "assistant",
+        content: h.text,
       })),
-      { role: "user", parts: [{ text: message }] },
+      { role: "user", content: message },
     ];
 
-    const response = await fetch(GEMINI_URL, {
+    const response = await fetch(OPENAI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
       body: JSON.stringify({
-        contents,
-        generationConfig: { temperature: 0.7, maxOutputTokens: 300 },
+        model: "gpt-4o-mini",
+        messages,
+        temperature: 0.7,
+        max_tokens: 300,
       }),
     });
 
-    if (!response.ok) throw new Error("Error conectando con Gemini");
+    if (!response.ok) throw new Error("Error conectando con OpenAI");
 
     const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "No tengo una respuesta para eso, intenta preguntarme de otra forma.";
+    const reply = data.choices?.[0]?.message?.content?.trim() || "No tengo una respuesta para eso, intenta preguntarme de otra forma.";
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

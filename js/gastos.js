@@ -73,6 +73,8 @@ const openBtn = document.getElementById('addMovementBtn');
 const closeBtn = document.getElementById('closeModal');
 const saveBtn = document.getElementById('saveMovement');
 
+renderCategoryGrid('movCategoryGrid');
+
 openBtn?.addEventListener('click', () => {
     document.getElementById('movDate').value = new Date().toISOString().split('T')[0];
     modal.classList.add('open');
@@ -85,13 +87,14 @@ document.querySelectorAll('.type-btn').forEach(btn => {
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         modalType = btn.dataset.type;
+        document.getElementById('movCategoryField').classList.toggle('category-picker-hidden', modalType === 'income');
     });
 });
 
 saveBtn?.addEventListener('click', async () => {
     const desc = document.getElementById('movDesc').value.trim();
     const amount = parseFloat(document.getElementById('movAmount').value);
-    const category = document.getElementById('movCategory').value;
+    const category = getSelectedCategory('movCategoryGrid');
     const date = document.getElementById('movDate').value;
 
     if (!desc || !amount || amount <= 0 || !date) {

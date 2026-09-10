@@ -38,7 +38,48 @@ async function renderCurrentPlan() {
     // La alcancía 3D solo aplica al plan anual
     const rewardBlock = document.getElementById('rewardBlock');
     rewardBlock.style.display = plan === 'premium_anual' ? 'block' : 'none';
+    if (plan === 'premium_anual') await renderRewardAddress();
 }
+
+// Muestra el formulario de dirección o la confirmación, según si ya guardó una
+async function renderRewardAddress() {
+    const address = await getShippingAddress();
+    const form = document.getElementById('rewardAddressForm');
+    const confirm = document.getElementById('rewardAddressConfirm');
+
+    if (address) {
+        form.style.display = 'none';
+        confirm.style.display = 'block';
+        document.getElementById('rewardAddressText').textContent = address;
+    } else {
+        form.style.display = 'block';
+        confirm.style.display = 'none';
+    }
+}
+
+document.getElementById('saveRewardAddressBtn')?.addEventListener('click', async () => {
+    const address = document.getElementById('rewardAddressInput').value.trim();
+    const msg = document.getElementById('rewardAddressMsg');
+    if (!address) {
+        msg.textContent = 'Escribe una dirección válida.';
+        return;
+    }
+
+    try {
+        await setShippingAddress(address);
+        await renderRewardAddress();
+    } catch (err) {
+        console.error('setShippingAddress:', err);
+        msg.textContent = 'No se pudo guardar, intenta de nuevo.';
+    }
+});
+
+document.getElementById('editRewardAddressBtn')?.addEventListener('click', async () => {
+    const current = await getShippingAddress();
+    document.getElementById('rewardAddressInput').value = current;
+    document.getElementById('rewardAddressForm').style.display = 'block';
+    document.getElementById('rewardAddressConfirm').style.display = 'none';
+});
 
 // Guardar cambios de teléfono
 document.getElementById('savePhoneBtn')?.addEventListener('click', async () => {

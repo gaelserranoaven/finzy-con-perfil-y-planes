@@ -132,6 +132,8 @@ const closeBtn = document.getElementById('closeQuickModal');
 const saveBtn = document.getElementById('saveQuickMovement');
 let quickType = 'expense';
 
+renderCategoryGrid('quickCategoryGrid');
+
 addBtn?.addEventListener('click', () => modal.classList.add('open'));
 closeBtn?.addEventListener('click', () => modal.classList.remove('open'));
 modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
@@ -141,13 +143,14 @@ document.querySelectorAll('.type-btn').forEach(btn => {
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         quickType = btn.dataset.type;
+        document.getElementById('quickCategoryField').classList.toggle('category-picker-hidden', quickType === 'income');
     });
 });
 
 saveBtn?.addEventListener('click', async () => {
     const desc = document.getElementById('quickDesc').value.trim();
     const amount = parseFloat(document.getElementById('quickAmount').value);
-    const category = document.getElementById('quickCategory').value;
+    const category = getSelectedCategory('quickCategoryGrid');
 
     if (!desc || !amount || amount <= 0) {
         alert('Completa la descripción y un monto válido');

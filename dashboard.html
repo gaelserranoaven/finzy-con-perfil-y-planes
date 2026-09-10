@@ -135,8 +135,8 @@
             </div>
             <div class="modal-body">
                 <div class="type-toggle">
-                    <button class="type-btn active" data-type="expense">Gasto</button>
                     <button class="type-btn" data-type="income">Ingreso</button>
+                    <button class="type-btn active" data-type="expense">Gasto</button>
                 </div>
                 <label class="field">
                     <span class="field-label">¿Qué fue?</span>
@@ -146,17 +146,10 @@
                     <span class="field-label">Monto</span>
                     <input type="number" id="quickAmount" placeholder="0.00" class="field-input">
                 </label>
-                <label class="field">
+                <div class="field" id="quickCategoryField">
                     <span class="field-label">Categoría</span>
-                    <select id="quickCategory" class="field-input">
-                        <option value="comida">🍔 Comida</option>
-                        <option value="transporte">🚌 Transporte</option>
-                        <option value="entretenimiento">🎮 Entretenimiento</option>
-                        <option value="ropa">👕 Ropa</option>
-                        <option value="educacion">📚 Educación</option>
-                        <option value="otro">💫 Otro</option>
-                    </select>
-                </label>
+                    <div class="category-grid" id="quickCategoryGrid"></div>
+                </div>
                 <button class="btn btn-primary btn-block" id="saveQuickMovement">Guardar movimiento</button>
             </div>
         </div>

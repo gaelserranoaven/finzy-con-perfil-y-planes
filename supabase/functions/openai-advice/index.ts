@@ -1,11 +1,11 @@
 /* ===================================================================
-   FINZY — Edge Function: consejos personalizados con Gemini
-   La GEMINI_API_KEY vive como secreto del proyecto (Deno.env), nunca
+   FINZY — Edge Function: consejos personalizados con OpenAI (ChatGPT)
+   La OPENAI_API_KEY vive como secreto del proyecto (Deno.env), nunca
    llega al navegador. El cliente solo manda { name, movements, goals, stats }.
    =================================================================== */
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
   try {
     const { name, movements, goals, stats } = await req.json();
 
-    const topCategories = movements
+    const topCategories = (movements || [])
       .filter((m: any) => m.type === "expense")
       .reduce((acc: Record<string, number>, m: any) => {
         acc[m.category] = (acc[m.category] || 0) + Number(m.amount);
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       .map(([cat, amt]) => `${cat}: $${Number(amt).toFixed(0)}`)
       .join(", ");
 
-    const goalsText = goals.length > 0
+    const goalsText = (goals || []).length > 0
       ? goals.map((g: any) => `${g.name} (${Math.round((g.saved / g.target) * 100)}% completado)`).join(", ")
       : "Sin metas activas";
 
@@ -48,26 +48,31 @@ El usuario se llama ${name} y estos son sus datos financieros del mes:
 Genera exactamente 3 consejos financieros PERSONALIZADOS basados en sus datos reales.
 Usa un tono cercano, directo y juvenil (puedes usar "vos" o "tú").
 Sé específico con los números cuando sea relevante.
-No uses asteriscos ni markdown. Responde SOLO en este formato JSON:
+No uses asteriscos ni markdown. Responde SOLO en este formato JSON, sin texto extra:
 [
   {"emoji": "💡", "categoria": "ahorro|gastos|habitos|inversion", "titulo": "Título corto", "consejo": "Consejo de 2-3 oraciones máximo."},
   {"emoji": "💡", "categoria": "...", "titulo": "...", "consejo": "..."},
   {"emoji": "💡", "categoria": "...", "titulo": "...", "consejo": "..."}
 ]`;
 
-    const response = await fetch(GEMINI_URL, {
+    const response = await fetch(OPENAI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 600,
       }),
     });
 
-    if (!response.ok) throw new Error("Error conectando con Gemini");
+    if (!response.ok) throw new Error("Error conectando con OpenAI");
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = data.choices?.[0]?.message?.content || "";
     const clean = text.replace(/```json|```/g, "").trim();
     const cards = JSON.parse(clean);
 
