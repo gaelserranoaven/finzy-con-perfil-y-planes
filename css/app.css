@@ -719,6 +719,16 @@
     box-shadow: var(--shadow-sm);
 }
 
+.type-btn[data-type="expense"].active {
+    background: var(--expense);
+    color: white;
+}
+
+.type-btn[data-type="income"].active {
+    background: var(--income);
+    color: white;
+}
+
 /* Emoji picker */
 .emoji-picker {
     margin-bottom: 20px;
@@ -1434,4 +1444,186 @@
     .consejo-destacado { padding: 28px; }
     .plan-grid { grid-template-columns: 1fr; }
     .reward-card { flex-direction: column; text-align: center; }
+    .chatbot-panel { width: calc(100vw - 32px); height: 70vh; right: 16px; bottom: 88px; }
+    .chatbot-fab { right: 20px; bottom: 20px; }
+}
+
+/* ============ CHATBOT IA (solo planes premium) ============ */
+.chatbot-fab {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--lime);
+    border: 1.5px solid var(--ink);
+    box-shadow: var(--shadow-pop);
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.chatbot-fab:hover {
+    transform: translateY(-2px);
+}
+
+.chatbot-fab.chatbot-fab-locked {
+    background: var(--bg-soft);
+}
+
+.chatbot-panel {
+    position: fixed;
+    right: 32px;
+    bottom: 100px;
+    width: 360px;
+    height: 480px;
+    background: var(--bg);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop-lg);
+    z-index: 150;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chatbot-panel.open {
+    display: flex;
+    animation: modalSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chatbot-header {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.chatbot-header-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-close {
+    background: transparent;
+    border: none;
+    color: var(--bg);
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.chatbot-close:hover { opacity: 1; }
+
+.chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chatbot-bubble {
+    max-width: 84%;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.chatbot-bubble-bot {
+    background: white;
+    border: 1.5px solid rgba(26,24,20,0.08);
+    align-self: flex-start;
+}
+
+.chatbot-bubble-user {
+    background: var(--lime);
+    color: var(--ink);
+    align-self: flex-end;
+}
+
+.chatbot-bubble-loading {
+    background: white;
+    border: 1.5px solid rgba(26,24,20,0.08);
+    align-self: flex-start;
+    color: var(--ink-muted);
+    font-style: italic;
+}
+
+.chatbot-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1.5px solid rgba(26,24,20,0.08);
+    flex-shrink: 0;
+}
+
+.chatbot-input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid rgba(26,24,20,0.1);
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    background: white;
+    color: var(--ink);
+}
+
+.chatbot-input-row input:focus {
+    outline: none;
+    border-color: var(--ink);
+}
+
+.chatbot-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.chatbot-send:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.chatbot-locked-body {
+    padding: 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.chatbot-locked-emoji { font-size: 36px; }
+
+.chatbot-locked-body h3 {
+    font-family: var(--font-display);
+    font-size: 16px;
+}
+
+.chatbot-locked-body p {
+    font-size: 13px;
+    color: var(--ink-soft);
 }
