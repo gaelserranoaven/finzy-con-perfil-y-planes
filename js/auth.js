@@ -76,12 +76,13 @@ async function setUserPlan(plan) {
 }
 
 // Obtener dirección de envío guardada (para la recompensa del plan anual)
+// Devuelve { line1, details } o null si no ha guardado nada
 async function getShippingAddress() {
     const { data: { user } } = await _supabase.auth.getUser();
-    return user?.user_metadata?.shipping_address || '';
+    return user?.user_metadata?.shipping_address || null;
 }
 
-// Guardar dirección de envío
+// Guardar dirección de envío — { line1, details }
 async function setShippingAddress(address) {
     const { data, error } = await _supabase.auth.updateUser({
         data: { shipping_address: address }

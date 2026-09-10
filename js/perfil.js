@@ -47,10 +47,12 @@ async function renderRewardAddress() {
     const form = document.getElementById('rewardAddressForm');
     const confirm = document.getElementById('rewardAddressConfirm');
 
-    if (address) {
+    if (address && address.line1) {
         form.style.display = 'none';
         confirm.style.display = 'block';
-        document.getElementById('rewardAddressText').textContent = address;
+        document.getElementById('rewardAddressText').textContent = address.details
+            ? `${address.line1} — ${address.details}`
+            : address.line1;
     } else {
         form.style.display = 'block';
         confirm.style.display = 'none';
@@ -58,15 +60,16 @@ async function renderRewardAddress() {
 }
 
 document.getElementById('saveRewardAddressBtn')?.addEventListener('click', async () => {
-    const address = document.getElementById('rewardAddressInput').value.trim();
+    const line1 = document.getElementById('rewardAddressLine1').value.trim();
+    const details = document.getElementById('rewardAddressDetails').value.trim();
     const msg = document.getElementById('rewardAddressMsg');
-    if (!address) {
-        msg.textContent = 'Escribe una dirección válida.';
+    if (!line1) {
+        msg.textContent = 'Escribe la dirección, es obligatoria.';
         return;
     }
 
     try {
-        await setShippingAddress(address);
+        await setShippingAddress({ line1, details });
         await renderRewardAddress();
     } catch (err) {
         console.error('setShippingAddress:', err);
@@ -76,7 +79,8 @@ document.getElementById('saveRewardAddressBtn')?.addEventListener('click', async
 
 document.getElementById('editRewardAddressBtn')?.addEventListener('click', async () => {
     const current = await getShippingAddress();
-    document.getElementById('rewardAddressInput').value = current;
+    document.getElementById('rewardAddressLine1').value = current?.line1 || '';
+    document.getElementById('rewardAddressDetails').value = current?.details || '';
     document.getElementById('rewardAddressForm').style.display = 'block';
     document.getElementById('rewardAddressConfirm').style.display = 'none';
 });
