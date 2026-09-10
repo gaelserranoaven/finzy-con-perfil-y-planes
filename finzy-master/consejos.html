@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consejos — Finzy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+<div class="noise"></div>
+<aside class="sidebar">
+<a href="index.html" class="logo logo-sidebar"><span class="logo-mark">◉</span><span class="logo-text">finzy</span></a>
+<nav class="side-nav">
+<a href="dashboard.html" class="side-link"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg><span>Dashboard</span></a>
+<a href="gastos.html" class="side-link"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16M6 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Gastos</span></a>
+<a href="metas.html" class="side-link"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="0.8" fill="currentColor"/></svg><span>Metas</span></a>
+<a href="consejos.html" class="side-link active"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Consejos</span></a>
+<a href="perfil.html" class="side-link"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 17c1-3.5 4-5 6.5-5s5.5 1.5 6.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Perfil</span></a>
+
+<button onclick="logout()" class="side-link" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;margin-top:auto;"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 15l4-5-4-5M17 10H7M10 4H5a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Cerrar sesión</span></button>
+</nav>
+<div class="sidebar-footer"><div class="user-card"><div class="user-avatar" id="userAvatar">?</div><div><div class="user-name" id="userName">...</div><div class="user-meta" id="userPlanLabel">Plan gratis</div></div></div></div>
+</aside>
+<main class="main-content">
+<header class="top-bar">
+<div><h1 class="page-title">Consejos financieros 💡</h1><p class="page-subtitle">Aprende sobre dinero sin morir de aburrimiento</p></div>
+</header>
+<section class="consejo-destacado">
+<div class="consejo-destacado-tag">/ consejo del día</div>
+<h2 class="consejo-destacado-title">La regla del <em>50/30/20</em></h2>
+<p class="consejo-destacado-body">Divide tus ingresos así: <strong>50%</strong> en necesidades (comida, transporte, renta), <strong>30%</strong> en lo que disfrutas (salidas, ropa, hobbies) y <strong>20%</strong> en ahorro. Si arrancas con esto, ya vas mejor que el 80% de los adultos.</p>
+<div class="consejo-destacado-grid">
+<div class="distribucion-box"><span class="dist-num">50%</span><span class="dist-label">Necesidades</span></div>
+<div class="distribucion-box"><span class="dist-num">30%</span><span class="dist-label">Gustos</span></div>
+<div class="distribucion-box"><span class="dist-num">20%</span><span class="dist-label">Ahorro</span></div>
+</div>
+</section>
+<section class="consejos-categorias">
+<button class="filter-chip active" data-cat="all">Todos</button>
+<button class="filter-chip" data-cat="ahorro">💰 Ahorro</button>
+<button class="filter-chip" data-cat="gastos">💸 Gastos</button>
+<button class="filter-chip" data-cat="habitos">🧠 Hábitos</button>
+<button class="filter-chip" data-cat="inversion">📈 Inversión</button>
+</section>
+<section class="consejos-grid" id="consejosGrid"></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/data.js"></script>
+<script src="js/config.js"></script>
+<script src="js/gemini.js"></script>
+<script src="js/consejos.js"></script>
+</body>
+</html>

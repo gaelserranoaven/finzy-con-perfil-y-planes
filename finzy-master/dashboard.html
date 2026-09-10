@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Finzy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+    <div class="noise"></div>
+    
+    <aside class="sidebar">
+        <a href="index.html" class="logo logo-sidebar">
+            <span class="logo-mark">◉</span>
+            <span class="logo-text">finzy</span>
+        </a>
+        
+        <nav class="side-nav">
+            <a href="dashboard.html" class="side-link active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="gastos.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16M6 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Gastos</span>
+            </a>
+            <a href="metas.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="0.8" fill="currentColor"/></svg>
+                <span>Metas</span>
+            </a>
+            <a href="consejos.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2v3M10 15v3M2 10h3M15 10h3M4.5 4.5l2 2M13.5 13.5l2 2M15.5 4.5l-2 2M6.5 13.5l-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span>Consejos</span>
+            </a>
+            <a href="perfil.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 17c1-3.5 4-5 6.5-5s5.5 1.5 6.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Perfil</span>
+            </a>
+            <button onclick="logout()" class="side-link" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;margin-top:auto;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 15l4-5-4-5M17 10H7M10 4H5a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Cerrar sesión</span>
+            </button>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div class="user-name" id="userName">...</div>
+                    <div class="user-meta" id="userPlanLabel">Plan gratis</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div>
+                <h1 class="page-title">Hola, <span id="userGreeting">...</span> <span class="wave">👋</span></h1>
+                <p class="page-subtitle" id="pageSubtitle">Aquí está cómo va tu mes</p>
+            </div>
+            <button class="btn btn-primary" id="addQuickBtn">+ Nuevo movimiento</button>
+        </header>
+
+        <section class="balance-grid">
+            <div class="balance-card balance-main">
+                <span class="card-label">Balance del mes</span>
+                <div class="balance-amount" id="balanceAmount">$0</div>
+            </div>
+            <div class="balance-card">
+                <span class="card-label">Ingresos</span>
+                <div class="balance-amount balance-amount-income" id="incomeAmount">$0</div>
+                <span class="card-meta">Este mes</span>
+            </div>
+            <div class="balance-card">
+                <span class="card-label">Gastos</span>
+                <div class="balance-amount balance-amount-expense" id="expenseAmount">$0</div>
+                <span class="card-meta">Este mes</span>
+            </div>
+            <div class="balance-card">
+                <span class="card-label">Ahorro</span>
+                <div class="balance-amount balance-amount-saving" id="savingAmount">$0</div>
+                <span class="card-meta">En metas activas</span>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="dashboard-block dashboard-chart">
+                <div class="block-header">
+                    <h2>Gastos por categoría</h2>
+                    <span class="block-meta">Últimos 30 días</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="categoryChart" width="400" height="280"></canvas>
+                </div>
+                <div class="chart-legend" id="chartLegend"></div>
+            </div>
+            
+            <div class="dashboard-block">
+                <div class="block-header">
+                    <h2>Próxima meta</h2>
+                    <a href="metas.html" class="block-action">Ver todas →</a>
+                </div>
+                <div id="nextGoalContainer" class="goal-preview">
+                    <p style="color:var(--ink-muted);font-size:14px;padding:16px">Sin metas activas</p>
+                </div>
+            </div>
+            
+            <div class="dashboard-block dashboard-recent">
+                <div class="block-header">
+                    <h2>Movimientos recientes</h2>
+                    <a href="gastos.html" class="block-action">Ver todos →</a>
+                </div>
+                <ul class="movements-list" id="recentMovements"></ul>
+            </div>
+            
+            <div class="dashboard-block dashboard-tip">
+                <span class="tip-label">/ tip del día</span>
+                <h3 class="tip-headline">La regla del <em>48</em></h3>
+                <p class="tip-body">Antes de comprar algo que no necesitas, espera 48 horas. Si lo sigues queriendo, cómpralo. Si no, ahorraste sin esfuerzo.</p>
+                <a href="consejos.html" class="btn btn-ghost btn-sm">Más consejos →</a>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="quickAddModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo movimiento</h2>
+                <button class="modal-close" id="closeQuickModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="type-toggle">
+                    <button class="type-btn active" data-type="expense">Gasto</button>
+                    <button class="type-btn" data-type="income">Ingreso</button>
+                </div>
+                <label class="field">
+                    <span class="field-label">¿Qué fue?</span>
+                    <input type="text" id="quickDesc" placeholder="Ej: Café con amigos" class="field-input">
+                </label>
+                <label class="field">
+                    <span class="field-label">Monto</span>
+                    <input type="number" id="quickAmount" placeholder="0.00" class="field-input">
+                </label>
+                <label class="field">
+                    <span class="field-label">Categoría</span>
+                    <select id="quickCategory" class="field-input">
+                        <option value="comida">🍔 Comida</option>
+                        <option value="transporte">🚌 Transporte</option>
+                        <option value="entretenimiento">🎮 Entretenimiento</option>
+                        <option value="ropa">👕 Ropa</option>
+                        <option value="educacion">📚 Educación</option>
+                        <option value="otro">💫 Otro</option>
+                    </select>
+                </label>
+                <button class="btn btn-primary btn-block" id="saveQuickMovement">Guardar movimiento</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

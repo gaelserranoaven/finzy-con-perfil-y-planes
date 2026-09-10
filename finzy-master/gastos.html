@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos — Finzy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+    <div class="noise"></div>
+    
+    <aside class="sidebar">
+        <a href="index.html" class="logo logo-sidebar">
+            <span class="logo-mark">◉</span>
+            <span class="logo-text">finzy</span>
+        </a>
+        <nav class="side-nav">
+            <a href="dashboard.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="gastos.html" class="side-link active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16M6 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Gastos</span>
+            </a>
+            <a href="metas.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="0.8" fill="currentColor"/></svg>
+                <span>Metas</span>
+            </a>
+            <a href="consejos.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2v3M10 15v3M2 10h3M15 10h3M4.5 4.5l2 2M13.5 13.5l2 2M15.5 4.5l-2 2M6.5 13.5l-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span>Consejos</span>
+            </a>
+            <a href="perfil.html" class="side-link">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 17c1-3.5 4-5 6.5-5s5.5 1.5 6.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Perfil</span>
+            </a>
+            <button onclick="logout()" class="side-link" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;margin-top:auto;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 15l4-5-4-5M17 10H7M10 4H5a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Cerrar sesión</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div class="user-name" id="userName">...</div>
+                    <div class="user-meta" id="userPlanLabel">Plan gratis</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div>
+                <h1 class="page-title">Tus movimientos</h1>
+                <p class="page-subtitle">Todo lo que entra y sale, en un solo lugar</p>
+            </div>
+            <button class="btn btn-primary" id="addMovementBtn">+ Agregar movimiento</button>
+        </header>
+
+        <section class="gastos-summary">
+            <div class="summary-card summary-card-income">
+                <span class="summary-label">Ingresos del mes</span>
+                <span class="summary-amount" id="totalIncome">$0</span>
+            </div>
+            <div class="summary-card summary-card-expense">
+                <span class="summary-label">Gastos del mes</span>
+                <span class="summary-amount" id="totalExpense">$0</span>
+            </div>
+            <div class="summary-card summary-card-balance">
+                <span class="summary-label">Balance</span>
+                <span class="summary-amount" id="totalBalance">$0</span>
+            </div>
+        </section>
+
+        <section class="filters">
+            <button class="filter-chip active" data-filter="all">Todos</button>
+            <button class="filter-chip" data-filter="expense">Gastos</button>
+            <button class="filter-chip" data-filter="income">Ingresos</button>
+            <button class="filter-chip" data-filter="comida">🍔 Comida</button>
+            <button class="filter-chip" data-filter="transporte">🚌 Transporte</button>
+            <button class="filter-chip" data-filter="entretenimiento">🎮 Ocio</button>
+            <button class="filter-chip" data-filter="ropa">👕 Ropa</button>
+            <button class="filter-chip" data-filter="educacion">📚 Educación</button>
+        </section>
+
+        <section class="movements-section">
+            <ul class="movements-list movements-list-full" id="allMovements"></ul>
+            <div class="empty-state" id="emptyState" style="display:none">
+                <div class="empty-icon">💸</div>
+                <h3>Sin movimientos aún</h3>
+                <p>Agrega tu primer ingreso o gasto para empezar a llevar el control.</p>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="movementModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo movimiento</h2>
+                <button class="modal-close" id="closeModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="type-toggle">
+                    <button class="type-btn active" data-type="expense">Gasto</button>
+                    <button class="type-btn" data-type="income">Ingreso</button>
+                </div>
+                <label class="field">
+                    <span class="field-label">¿Qué fue?</span>
+                    <input type="text" id="movDesc" placeholder="Ej: Almuerzo con Sofía" class="field-input">
+                </label>
+                <label class="field">
+                    <span class="field-label">Monto</span>
+                    <input type="number" id="movAmount" placeholder="0.00" class="field-input" step="0.01">
+                </label>
+                <label class="field">
+                    <span class="field-label">Categoría</span>
+                    <select id="movCategory" class="field-input">
+                        <option value="comida">🍔 Comida</option>
+                        <option value="transporte">🚌 Transporte</option>
+                        <option value="entretenimiento">🎮 Entretenimiento</option>
+                        <option value="ropa">👕 Ropa</option>
+                        <option value="educacion">📚 Educación</option>
+                        <option value="salud">⚕️ Salud</option>
+                        <option value="otro">💫 Otro</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span class="field-label">Fecha</span>
+                    <input type="date" id="movDate" class="field-input">
+                </label>
+                <button class="btn btn-primary btn-block" id="saveMovement">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/gastos.js"></script>
+</body>
+</html>
