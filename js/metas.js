@@ -32,8 +32,8 @@ async function renderGoals() {
         return `
             <div class="goal-card ${completed ? 'goal-card-completed' : ''}">
                 ${completed ? '<span class="completed-badge">✓ Cumplida</span>' : ''}
-                <div class="goal-card-emoji">${g.emoji}</div>
-                <div class="goal-card-name">${g.name}</div>
+                <div class="goal-card-emoji">${escapeHTML(g.emoji)}</div>
+                <div class="goal-card-name">${escapeHTML(g.name)}</div>
                 <div class="goal-card-date">${dateLabel}</div>
                 <div class="goal-card-amounts">
                     <span class="goal-card-saved">${formatMoney(g.saved)}</span>
@@ -46,7 +46,7 @@ async function renderGoals() {
                     <strong>${progress.toFixed(0)}%</strong> completado
                 </div>
                 <div class="goal-card-actions">
-                    <button class="goal-action-btn add-to-goal" data-id="${g.id}" data-name="${g.name}">+ Aportar</button>
+                    <button class="goal-action-btn add-to-goal" data-id="${g.id}" data-name="${escapeHTML(g.name)}">+ Aportar</button>
                     <button class="goal-action-btn danger delete-goal" data-id="${g.id}">Eliminar</button>
                 </div>
             </div>

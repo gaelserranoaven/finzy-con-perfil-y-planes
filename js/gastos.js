@@ -33,7 +33,7 @@ async function renderMovements() {
             <li class="movement-item">
                 <div class="movement-icon" style="background:${cat.color}22">${cat.emoji}</div>
                 <div class="movement-info">
-                    <div class="movement-desc">${m.description}</div>
+                    <div class="movement-desc">${escapeHTML(m.description)}</div>
                     <div class="movement-meta">${cat.label} · ${formatDate(m.date)}</div>
                 </div>
                 <div class="movement-amount ${m.type}">${sign}${formatMoney(m.amount)}</div>

@@ -103,6 +103,11 @@ function buildPremiumWidget() {
             renderBubble(messages, data.reply, 'chatbot-bubble-bot');
             chatHistory.push({ role: 'user', text });
             chatHistory.push({ role: 'model', text: data.reply });
+
+            if (data.actions?.some(a => a.type === 'movement')) {
+                chatContextLoaded = false; // recargar contexto financiero con el nuevo movimiento
+                await refreshPageData();
+            }
         } catch (err) {
             loading.remove();
             renderBubble(messages, 'No pude responder en este momento, intenta de nuevo.', 'chatbot-bubble-bot');
@@ -119,14 +124,33 @@ function buildPremiumWidget() {
 let chatFinancialContext = null;
 
 async function loadChatContext() {
-    const [movements, goals, stats, name] = await Promise.all([
+    const [movements, goals, investmentGoals, stats, name] = await Promise.all([
         getMovements(),
         getGoals(),
+        getInvestmentGoals(),
         calculateStats(),
         getUserName()
     ]);
-    chatFinancialContext = { name, movements, goals, stats };
+    chatFinancialContext = { name, movements, goals, investmentGoals, stats };
     chatContextLoaded = true;
+}
+
+// Cuando la IA registra un movimiento, refresca las vistas de la página
+// actual que ya están cargadas (cada página expone sus propias funciones
+// de render; solo llamamos las que existan).
+async function refreshPageData() {
+    const renders = [
+        typeof renderStats === 'function' && renderStats,
+        typeof renderRecent === 'function' && renderRecent,
+        typeof renderChart === 'function' && renderChart,
+        typeof renderNextGoal === 'function' && renderNextGoal,
+        typeof renderSummary === 'function' && renderSummary,
+        typeof renderMovements === 'function' && renderMovements,
+    ].filter(Boolean);
+
+    for (const render of renders) {
+        try { await render(); } catch (err) { console.error('refreshPageData:', err); }
+    }
 }
 
 (async () => {

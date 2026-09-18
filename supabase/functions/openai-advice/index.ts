@@ -1,26 +1,30 @@
 /* ===================================================================
    FINZY — Edge Function: consejos personalizados con OpenAI (ChatGPT)
+   El JWT se verifica con auth.getUser (valida la firma contra Supabase
+   Auth), no decodificando el payload a mano.
    La OPENAI_API_KEY vive como secreto del proyecto (Deno.env), nunca
    llega al navegador. El cliente solo manda { name, movements, goals, stats }.
    =================================================================== */
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-function isLoggedInUser(authHeader: string | null): boolean {
-  if (!authHeader) return false;
-  try {
-    const token = authHeader.replace("Bearer ", "");
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return Boolean(payload.sub);
-  } catch {
-    return false;
-  }
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+async function isLoggedInUser(authHeader: string | null): Promise<boolean> {
+  const token = authHeader?.replace("Bearer ", "");
+  if (!token) return false;
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  return !error && Boolean(user);
 }
 
 Deno.serve(async (req) => {
@@ -28,7 +32,7 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  if (!isLoggedInUser(req.headers.get("Authorization"))) {
+  if (!(await isLoggedInUser(req.headers.get("Authorization")))) {
     return new Response(JSON.stringify({ error: "Debes iniciar sesión" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -36,7 +40,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { name, movements, goals, stats } = await req.json();
+    const { name, movements, goals, investmentGoals, stats } = await req.json();
 
     const topCategories = (movements || [])
       .filter((m: any) => m.type === "expense")
@@ -53,24 +57,31 @@ Deno.serve(async (req) => {
 
     const goalsText = (goals || []).length > 0
       ? goals.map((g: any) => `${g.name} (${Math.round((g.saved / g.target) * 100)}% completado)`).join(", ")
-      : "Sin metas activas";
+      : "Sin metas de ahorro activas";
 
-    const prompt = `Eres un asesor financiero amigable para jóvenes latinoamericanos.
-El usuario se llama ${name} y estos son sus datos financieros del mes:
+    const invGoalsText = (investmentGoals || []).length > 0
+      ? investmentGoals.map((g: any) => `${g.name} en ${g.instrument} (${Math.round((g.saved / g.target) * 100)}% completado)`).join(", ")
+      : "Sin metas de inversión activas";
+
+    const prompt = `Eres "Fin", un asesor financiero certificado especializado en jóvenes latinoamericanos que recién empiezan a manejar su plata. Tu trabajo es mirar los números reales de ${name} y darle consejos que pueda aplicar esta misma semana, no frases motivacionales genéricas.
+
+Datos financieros reales de ${name} este mes:
 - Balance: $${Number(stats.balance).toFixed(0)}
 - Ingresos: $${Number(stats.income).toFixed(0)}
 - Gastos: $${Number(stats.expense).toFixed(0)}
 - Principales categorías de gasto: ${topCatText || "Sin gastos registrados"}
 - Metas de ahorro: ${goalsText}
+- Metas de inversión: ${invGoalsText}
 
-Genera exactamente 3 consejos financieros PERSONALIZADOS basados en sus datos reales.
-Usa un tono cercano, directo y juvenil (puedes usar "vos" o "tú").
-Sé específico con los números cuando sea relevante.
-No uses asteriscos ni markdown. Responde SOLO en este formato JSON, sin texto extra:
+Genera exactamente 3 consejos financieros PERSONALIZADOS basados en estos datos reales. Reglas:
+- Al menos uno de los 3 debe hablar de ahorro/gastos y, si tiene metas de inversión o dinero sobrante, al menos uno debe hablar de inversión — mencionando el instrumento concreto (CDT, acciones, cripto, etc.) cuando aplique y su nivel de riesgo.
+- Sé específico con los números (montos, porcentajes, plazos) en vez de generalidades.
+- Usa un tono cercano, directo y juvenil (puedes usar "vos" o "tú").
+- No uses asteriscos ni markdown. Responde SOLO en este formato JSON, sin texto extra (el campo "emoji" debe ser un único emoji relevante al consejo):
 [
-  {"emoji": "💡", "categoria": "ahorro|gastos|habitos|inversion", "titulo": "Título corto", "consejo": "Consejo de 2-3 oraciones máximo."},
-  {"emoji": "💡", "categoria": "...", "titulo": "...", "consejo": "..."},
-  {"emoji": "💡", "categoria": "...", "titulo": "...", "consejo": "..."}
+  {"emoji": "(un emoji corto)", "categoria": "ahorro|gastos|habitos|inversion", "titulo": "Título corto", "consejo": "Consejo de 2-3 oraciones máximo."},
+  {"emoji": "(un emoji corto)", "categoria": "...", "titulo": "...", "consejo": "..."},
+  {"emoji": "(un emoji corto)", "categoria": "...", "titulo": "...", "consejo": "..."}
 ]`;
 
     const response = await fetch(OPENAI_URL, {

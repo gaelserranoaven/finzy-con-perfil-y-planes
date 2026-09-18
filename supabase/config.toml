@@ -1,0 +1,15 @@
+project_id = "kssqecmkouqojbcwudxz"
+
+# "Enforce JWT Verification" reactivado para las 3 Edge Functions. Se
+# había desactivado a nivel de plataforma para resolver un bug de CORS
+# que en realidad era otro (nombre de función con mayúsculas generaba
+# un slug de URL random en Supabase, ya corregido). Con esto desactivado,
+# cualquiera podía forjar un JWT falso y usar el chatbot premium gratis.
+[functions.openai-chat]
+verify_jwt = true
+
+[functions.openai-advice]
+verify_jwt = true
+
+[functions.set-plan]
+verify_jwt = true

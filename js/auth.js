@@ -54,22 +54,30 @@ async function logout() {
     window.location.href = 'index.html';
 }
 
-// Obtener el plan actual del usuario (por defecto: gratis)
+// Obtener el plan actual del usuario (por defecto: gratis).
+// Vive en la tabla `subscriptions` (RLS: el usuario solo puede leer su
+// propia fila), no en user_metadata — ese campo era editable por el
+// propio usuario desde la consola del navegador.
 async function getUserPlan() {
     const { data: { user } } = await _supabase.auth.getUser();
     if (!user) return 'gratis';
-    return user.user_metadata?.plan || 'gratis';
+    const { data, error } = await _supabase
+        .from('subscriptions')
+        .select('plan')
+        .eq('user_id', user.id)
+        .maybeSingle();
+    if (error) { console.error('getUserPlan:', error); return 'gratis'; }
+    return data?.plan || 'gratis';
 }
 
 // Cambiar de plan — esto NO procesa ningún cobro real, solo guarda
-// la selección en el perfil del usuario. Falta integrar una pasarela
-// de pago real (Wompi/ePayco) para que esto cobre de verdad.
+// la selección. Falta integrar una pasarela de pago real (Wompi/ePayco)
+// para que esto cobre de verdad. La escritura pasa por la Edge Function
+// set-plan porque la tabla `subscriptions` no admite INSERT/UPDATE
+// directo del cliente (solo el service role puede escribir).
 async function setUserPlan(plan) {
-    const { data, error } = await _supabase.auth.updateUser({
-        data: {
-            plan: plan,
-            plan_started_at: new Date().toISOString()
-        }
+    const { data, error } = await _supabase.functions.invoke('set-plan', {
+        body: { plan }
     });
     if (error) throw error;
     return data;

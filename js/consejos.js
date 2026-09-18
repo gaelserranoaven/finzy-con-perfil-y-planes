@@ -87,10 +87,10 @@ function renderPersonalizedSection(cards) {
             ${cards.map(c => `
                 <article class="consejo-card" style="border:1.5px solid rgba(212,245,66,0.4);background:linear-gradient(135deg,#fff 0%,rgba(212,245,66,0.06) 100%);position:relative;overflow:hidden;">
                     <div style="position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;letter-spacing:0.06em;color:#2D9D5F;background:#2D9D5F15;padding:3px 8px;border-radius:20px;text-transform:uppercase;">IA</div>
-                    <div class="consejo-card-emoji">${c.emoji}</div>
-                    <div class="consejo-card-cat">/ ${c.categoria}</div>
-                    <h3 class="consejo-card-title">${c.titulo}</h3>
-                    <p class="consejo-card-body">${c.consejo}</p>
+                    <div class="consejo-card-emoji">${escapeHTML(c.emoji)}</div>
+                    <div class="consejo-card-cat">/ ${escapeHTML(c.categoria)}</div>
+                    <h3 class="consejo-card-title">${escapeHTML(c.titulo)}</h3>
+                    <p class="consejo-card-body">${escapeHTML(c.consejo)}</p>
                 </article>
             `).join('')}
         </div>
@@ -154,14 +154,15 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
         if (!user) return;
 
         // Obtener datos del usuario para contexto
-        const [movements, goals, stats, name] = await Promise.all([
+        const [movements, goals, investmentGoals, stats, name] = await Promise.all([
             getMovements(),
             getGoals(),
+            getInvestmentGoals(),
             calculateStats(),
             getUserName()
         ]);
 
-        const cards = await getPersonalizedAdvice({ name, movements, goals, stats });
+        const cards = await getPersonalizedAdvice({ name, movements, goals, investmentGoals, stats });
 
         if (cards && cards.length > 0) {
             personalizedCards = cards;

@@ -24,7 +24,7 @@ async function renderRecent() {
             <li class="movement-item">
                 <div class="movement-icon" style="background:${cat.color}22">${cat.emoji}</div>
                 <div class="movement-info">
-                    <div class="movement-desc">${m.description}</div>
+                    <div class="movement-desc">${escapeHTML(m.description)}</div>
                     <div class="movement-meta">${cat.label} · ${formatDate(m.date)}</div>
                 </div>
                 <div class="movement-amount ${m.type}">${sign}${formatMoney(m.amount)}</div>
@@ -111,9 +111,9 @@ async function renderNextGoal() {
     const g = goals[0];
     const progress = Math.min(100, (g.saved / g.target) * 100);
     container.innerHTML = `
-        <div class="goal-emoji-big">${g.emoji}</div>
+        <div class="goal-emoji-big">${escapeHTML(g.emoji)}</div>
         <div class="goal-info">
-            <div class="goal-name">${g.name}</div>
+            <div class="goal-name">${escapeHTML(g.name)}</div>
             <div class="goal-progress-bar">
                 <div class="goal-progress-fill" style="width:${progress}%"></div>
             </div>
