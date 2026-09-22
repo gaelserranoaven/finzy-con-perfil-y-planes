@@ -20,7 +20,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+// Usamos la clave pública (la misma del frontend), NO el service role.
+// Con el sistema nuevo de API keys de Supabase (sb_publishable_/sb_secret_)
+// la legacy SUPABASE_SERVICE_ROLE_KEY puede quedar deshabilitada: entonces
+// auth.getUser() falla siempre y el chat responde 403 aunque el usuario sí
+// sea premium. Autenticando con el JWT del propio usuario no dependemos de
+// esa key, y RLS sigue garantizando que solo toque sus propios datos.
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")
+  ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY")
+  ?? "sb_publishable__zch_FyhCZ6j37NQr0Ddbg_9kqZPVJT";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,22 +37,42 @@ const corsHeaders = {
 
 const VALID_CATEGORIES = ["comida", "transporte", "entretenimiento", "ropa", "educacion", "salud", "otro", "ingreso"];
 
-const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+// Un cliente por petición, actuando como el usuario que llamó (su JWT viaja
+// en cada consulta, así que RLS lo limita a sus propias filas).
+function userClient(authHeader: string) {
+  return createClient(SUPABASE_URL, ANON_KEY, {
+    global: { headers: { Authorization: authHeader } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
-async function getAuthedUser(authHeader: string | null): Promise<{ id: string; plan: string } | null> {
-  const token = authHeader?.replace("Bearer ", "");
-  if (!token) return null;
+type AuthResult =
+  | { ok: true; id: string; plan: string; client: ReturnType<typeof userClient> }
+  | { ok: false; status: number; error: string };
 
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) return null;
+// Devuelve un motivo distinto para cada fallo: sin sesión, sesión inválida,
+// tabla/consulta rota o plan gratis. Antes todo caía en el mismo 403 y era
+// imposible saber desde el navegador qué estaba pasando.
+async function getAuthedUser(authHeader: string | null): Promise<AuthResult> {
+  if (!authHeader) return { ok: false, status: 401, error: "Debes iniciar sesión" };
 
-  const { data } = await supabaseAdmin
+  const client = userClient(authHeader);
+  const { data: { user }, error } = await client.auth.getUser();
+  if (error || !user) {
+    return { ok: false, status: 401, error: "Sesión inválida o expirada, vuelve a iniciar sesión" };
+  }
+
+  const { data, error: subError } = await client
     .from("subscriptions")
     .select("plan")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  return { id: user.id, plan: data?.plan || "gratis" };
+  if (subError) {
+    return { ok: false, status: 500, error: `No se pudo leer tu plan: ${subError.message}` };
+  }
+
+  return { ok: true, id: user.id, plan: data?.plan || "gratis", client };
 }
 
 const tools = [
@@ -99,8 +127,14 @@ Deno.serve(async (req) => {
   }
 
   const authedUser = await getAuthedUser(req.headers.get("Authorization"));
-  if (!authedUser || authedUser.plan === "gratis") {
-    return new Response(JSON.stringify({ error: "Esta función es solo para planes premium" }), {
+  if (!authedUser.ok) {
+    return new Response(JSON.stringify({ error: authedUser.error }), {
+      status: authedUser.status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (authedUser.plan === "gratis") {
+    return new Response(JSON.stringify({ error: "Esta función es solo para planes premium", plan: authedUser.plan }), {
       status: 403,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -197,7 +231,7 @@ ${recentMovs || "Sin movimientos registrados"}`;
             if (!tipo || !descripcion || !(monto > 0)) {
               result = { ok: false, error: "Faltan datos válidos (tipo, descripción o monto) para registrar el movimiento" };
             } else {
-              const { data: inserted, error } = await supabaseAdmin
+              const { data: inserted, error } = await authedUser.client
                 .from("movements")
                 .insert([{
                   user_id: authedUser.id,

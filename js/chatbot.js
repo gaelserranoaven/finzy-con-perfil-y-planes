@@ -110,7 +110,7 @@ function buildPremiumWidget() {
             }
         } catch (err) {
             loading.remove();
-            renderBubble(messages, 'No pude responder en este momento, intenta de nuevo.', 'chatbot-bubble-bot');
+            renderBubble(messages, await errorMessage(err), 'chatbot-bubble-bot');
             console.error('chatbot:', err);
         } finally {
             sendBtn.disabled = false;
@@ -119,6 +119,17 @@ function buildPremiumWidget() {
 
     sendBtn.addEventListener('click', sendMessage);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+}
+
+// supabase-js envuelve los errores HTTP en FunctionsHttpError y deja la
+// Response original en err.context. Sin leerla solo se ve "non-2xx status
+// code" y se pierde el motivo real (sesión expirada, plan gratis, etc.).
+async function errorMessage(err) {
+    try {
+        const body = await err?.context?.json();
+        if (body?.error) return body.error;
+    } catch (_) { /* la respuesta no traía JSON */ }
+    return 'No pude responder en este momento, intenta de nuevo.';
 }
 
 let chatFinancialContext = null;

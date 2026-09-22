@@ -11,19 +11,25 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+// Clave pública, no el service role: ver el comentario en openai-chat.
+// Autenticamos con el JWT del propio usuario para no depender de la legacy
+// SUPABASE_SERVICE_ROLE_KEY, que puede estar deshabilitada en el proyecto.
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")
+  ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY")
+  ?? "sb_publishable__zch_FyhCZ6j37NQr0Ddbg_9kqZPVJT";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-
 async function isLoggedInUser(authHeader: string | null): Promise<boolean> {
-  const token = authHeader?.replace("Bearer ", "");
-  if (!token) return false;
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (!authHeader) return false;
+  const client = createClient(SUPABASE_URL, ANON_KEY, {
+    global: { headers: { Authorization: authHeader } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: { user }, error } = await client.auth.getUser();
   return !error && Boolean(user);
 }
 

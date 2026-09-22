@@ -10,6 +10,12 @@ async function getPersonalizedAdvice(userProfile) {
         body: userProfile
     });
 
-    if (error) throw new Error('Error conectando con el asistente');
+    // El motivo real viaja en el cuerpo de la respuesta (err.context), no en
+    // error.message, que solo dice "non-2xx status code".
+    if (error) {
+        let reason = '';
+        try { reason = (await error?.context?.json())?.error || ''; } catch (_) { /* sin JSON */ }
+        throw new Error(reason || 'Error conectando con el asistente');
+    }
     return data;
 }
