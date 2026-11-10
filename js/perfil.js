@@ -4,7 +4,7 @@
 
 const PLAN_DESC = {
     gratis: 'Registro de gastos e ingresos, 1 meta activa y consejos básicos.',
-    premium_mensual: 'Metas ilimitadas, gráficos avanzados y recordatorios inteligentes. $15.000/mes.',
+    premium_mensual: 'Metas ilimitadas, gráficos avanzados y recordatorios inteligentes (próximamente). $15.000/mes.',
     premium_anual: 'Todo lo de Premium + la alcancía física Finzy 3D de regalo. $150.000/año (~$12.500/mes).'
 };
 
